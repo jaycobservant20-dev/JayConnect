@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>ConnectJay</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: white;
+      text-align: center;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(30, 30, 30, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 30px 20px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      letter-spacing: 1px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    .btn-classique {
+      background: linear-gradient(45deg, #e50914, #ff416c);
+      color: white;
+    }
+
+    .btn-vip {
+      background: linear-gradient(45deg, #f8b500, #fceabb);
+      color: black;
+    }
+
+    .btn-action {
+      background: #2b2e3a;
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-help {
+      background: #4a5568;
+      color: white;
+      margin-top: 15px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 10px;
+      border: 1px solid #444;
+      background: #1a1a24;
+      color: white;
+      font-size: 15px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* Quiz Styles */
+    .btn-quiz {
+      background: #2b2e3a;
+      color: white;
+    }
+    .btn-quiz.correct {
+      background: #28a745 !important;
+      color: white !important;
+    }
+    .btn-quiz.wrong {
+      background: #dc3545 !important;
+      color: white !important;
+    }
+
+    /* Calculatrice Styles */
+    .calc-screen {
+      width: 100%;
+      height: 50px;
+      background: #000;
+      color: #00ffcc;
+      font-size: 24px;
+      text-align: right;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #333;
+      overflow-x: auto;
+    }
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .calc-btn {
+      padding: 15px;
+      font-size: 18px;
+      border-radius: 10px;
+      border: none;
+      background: #3a3f51;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .calc-btn:hover {
+      background: #4a5168;
+    }
+    .calc-btn.op {
+      background: #ff9500;
+    }
+
+    /* Studio Son */
+    .sound-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* Game Canvas */
+    canvas {
+      background: #111;
+      border: 2px solid #00ffcc;
+      border-radius: 12px;
+      margin-top: 10px;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body onclick="handleGlobalClick(event)">
+
+  <!-- ÉCRAN DE CONNEXION -->
+  <div class="container" id="login-screen">
+    <h1>ConnectJay</h1>
+    <p>Choisissez votre mode de connexion :</p>
+    
+    <button class="btn btn-classique" onclick="setMode('Classique')">Connexion Classique</button>
+    <button class="btn btn-vip" onclick="setMode('VIP')">Connexion VIP 👑</button>
+
+    <div id="form-section" class="hidden" style="margin-top: 15px;">
+      <h3 id="mode-title"></h3>
+      <input type="text" id="username" placeholder="Nom d'utilisateur">
+      <input type="password" id="pin" placeholder="Code PIN">
+      <button class="btn btn-action" onclick="login()">Se connecter</button>
+      <p id="error-msg" style="color: #ff6b6b; font-weight: bold;"></p>
+    </div>
+  </div>
+
+  <!-- ÉCRAN PRINCIPAL -->
+  <div class="container hidden" id="welcome-screen">
+    <h1 id="welcome-title">Bienvenue!</h1>
+
+    <div class="menu-grid" id="main-buttons">
+      <button class="btn btn-action" onclick="showRessources()">Ressources</button>
+      <button class="btn btn-action" onclick="showQuizMenu()">Quiz 🧠</button>
+      <button class="btn btn-action" onclick="showBientot()">Bientôt dispo</button>
+      <button class="btn btn-action" onclick="showMiniJeuxMenu()">Mini-jeux 🎮</button>
+      <button class="btn btn-action" onclick="showCalc()">Calculatrice</button>
+      <button class="btn btn-action" onclick="showSoundboard()">Studio Son 🔊</button>
+    </div>
+
+    <!-- Zone de contenu -->
+    <div id="content-area" style="margin-top: 20px;"></div>
+
+    <hr style="border-color: rgba(255,255,255,0.1); margin-top: 25px;">
+    
+    <a href="mailto:jaycobservant20@outlook.com?subject=AIDE%20SITE%20CONNECTIONJAY&body=MON%20PROBL%C3%88ME" style="text-decoration: none;">
+      <button class="btn btn-help">Aide</button>
+    </a>
+  </div>
+
+  <script>
+    // Audio Context Global
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function handleGlobalClick(e) {
+      initAudio();
+      if (e.target.tagName === 'BUTTON' || e.target.classList.contains('calc-btn')) {
+        playTingSound();
+      }
+    }
+
+    // Son de clic normal
+    function playTingSound() {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+      osc.frequency.setValueAtTime(1200, now);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+      osc.start(now);
+      osc.stop(now + 0.15);
+    }
+
+    // Son "Ting oui !" (victoire quiz)
+    function playTingOuiSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+
+      // Premier Ting
+      const osc1 = audioCtx.createOscillator();
+      const gain1 = audioCtx.createGain();
+      osc1.connect(gain1);
+      gain1.connect(audioCtx.destination);
+      osc1.frequency.setValueAtTime(1000, now);
+      gain1.gain.setValueAtTime(0.3, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      osc1.start(now);
+      osc1.stop(now + 0.12);
+
+      // Deuxième Ting plus aigu ("Oui !")
+      const osc2 = audioCtx.createOscillator();
+      const gain2 = audioCtx.createGain();
+      osc2.connect(gain2);
+      gain2.connect(audioCtx.destination);
+      osc2.frequency.setValueAtTime(1500, now + 0.1);
+      gain2.gain.setValueAtTime(0.4, now + 0.1);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      osc2.start(now + 0.1);
+      osc2.stop(now + 0.3);
+    }
+
+    // Liste des utilisateurs
+    const users = [
+      { name: "Marie-Anne", pin: "5645", type: "Classique" },
+      { name: "Alice", pin: "9188", type: "Classique" },
+      { name: "Jayke", pin: "7189", type: "Classique" },
+      { name: "ADMIN", pin: "2410", type: "VIP" },
+      { name: "Papa", pin: "7199", type: "VIP" },
+      { name: "Maman", pin: "8989", type: "VIP" }
+    ];
+
+    let currentMode = "";
+    let currentUser = null;
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById('form-section').classList.remove('hidden');
+      document.getElementById('mode-title').innerText = "Connexion " + (mode === 'VIP' ? "VIP 👑" : "Classique");
+      document.getElementById('error-msg').innerText = "";
+    }
+
+    function login() {
+      const nameInput = document.getElementById('username').value.trim();
+      const pinInput = document.getElementById('pin').value.trim();
+
+      const user = users.find(u => u.name.toLowerCase() === nameInput.toLowerCase() && u.pin === pinInput);
+
+      if (!user) {
+        document.getElementById('error-msg').innerText = "Nom ou PIN incorrect !";
+        return;
+      }
+
+      if (user.type !== currentMode) {
+        document.getElementById('error-msg').innerText = "Accès refusé ! Compte " + user.type + " non autorisé en mode " + currentMode + ".";
+        return;
+      }
+
+      currentUser = user;
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('welcome-screen').classList.remove('hidden');
+      document.getElementById('welcome-title').innerText = "Bienvenue, " + user.name + " !";
+    }
+
+    // 1. RESSOURCES
+    function showRessources() {
+      stopGame();
+      document.getElementById('content-area').innerHTML = "<h3 style='color:#aaa;'>PAS ENCORE DISPONIBLE</h3>";
+    }
+
+    // 2. QUIZ
+    function showQuizMenu() {
+      stopGame();
+      document.getElementById('content-area').innerHTML = `
+        <h3>Choisir un Quiz</h3>
+        <button class="btn btn-action" onclick="loadQuiz(1)">Quiz 1 : Général</button>
+        <button class="btn btn-action" onclick="loadQuiz(2)">Quiz 2 : Nature & animaux</button>
+        <div id="quiz-container" style="margin-top:15px;"></div>
+      `;
+    }
+
+    function loadQuiz(num) {
+      const container = document.getElementById('quiz-container');
+      if (num === 1) {
+        container.innerHTML = `
+          <h4>QUIZ 1</h4>
+          <p>Quel animal est la mascotte officielle du Québec ?</p>
+          <button class="btn btn-quiz" onclick="checkQuiz(this, true)">A) Le Castor</button>
+          <button class="btn btn-quiz" onclick="checkQuiz(this, false)">B) Le Caribou</button>
+          <button class="btn btn-quiz" onclick="checkQuiz(this, false)">C) Le Ouaouaron</button>
+          <p id="quiz-msg" style="margin-top:10px; font-weight:bold;"></p>
+        `;
+      } else if (num === 2) {
+        container.innerHTML = `
+          <h4>QUIZ 2</h4>
+          <p>Quel est l'arbre symbole du Québec ?</p>
+          <button class="btn btn-quiz" onclick="checkQuiz(this, false)">A) Le Pin Blanc</button>
+          <button class="btn btn-quiz" onclick="checkQuiz(this, true)">B) L'Érable à sucre</button>
+          <button class="btn btn-quiz" onclick="checkQuiz(this, false)">C) Le Bouleau Jaune</button>
+          <p id="quiz-msg" style="margin-top:10px; font-weight:bold;"></p>
+        `;
+      }
+    }
+
+    function checkQuiz(btn, isCorrect) {
+      document.querySelectorAll('.btn-quiz').forEach(b => {
+        b.classList.remove('correct', 'wrong');
+      });
+      
+      if (isCorrect) {
+        btn.classList.add('correct');
+        playTingOuiSound(); // Declenche le Ting oui !
+        document.getElementById('quiz-msg').innerText = "Bravo ! Bonne réponse ! 🎉";
+        document.getElementById('quiz-msg').style.color = "#28a745";
+      } else {
+        btn.classList.add('wrong');
+        document.getElementById('quiz-msg').innerText = "Mauvaise réponse, réessaie ! ❌";
+        document.getElementById('quiz-msg').style.color = "#dc3545";
+      }
+    }
+
+    // 3. BIENTÔT DISPONIBLE
+    function showBientot() {
+      stopGame();
+      document.getElementById('content-area').innerHTML = "<h3 style='color:#aaa;'>BIENTÔT DISPONIBLE</h3>";
+    }
+
+    // 4. MINI JEUX (Avec "Balle dans le vide")
+    function showMiniJeuxMenu() {
+      stopGame();
+      document.getElementById('content-area').innerHTML = `
+        <h3>Mini-Jeux 🎮</h3>
+        <button class="btn btn-action" onclick="startBallInVoidGame()">🔴 Balle dans le vide</button>
+        <button class="btn btn-action" onclick="showGuessGame()">🎯 Devinette de nombre</button>
+        <div id="game-container" style="margin-top:15px;"></div>
+      `;
+    }
+
+    // --- JEU 1 : BALLE DANS LE VIDE ---
+    let gameInterval = null;
+    function stopGame() {
+      if (gameInterval) clearInterval(gameInterval);
+    }
+
+    function startBallInVoidGame() {
+      const container = document.getElementById('game-container');
+      container.innerHTML = `
+        <h4>🔴 Balle dans le vide</h4>
+        <p style="font-size:12px;">Déplace la balle sur les carrés mobiles du pont !</p>
+        <canvas id="gameCanvas" width="320" height="300"></canvas>
+        <div style="margin-top: 8px;">
+          <button class="btn btn-action" style="width: 48%; inline-size: 48%;" onclick="moveBall(-15)">⬅️ Gauche</button>
+          <button class="btn btn-action" style="width: 48%; inline-size: 48%;" onclick="moveBall(15)">Droite ➡️</button>
+        </div>
+        <button class="btn btn-vip" style="margin-top:5px;" onclick="startBallInVoidGame()">Recommencer</button>
+        <p id="game-score" style="font-weight:bold; font-size:16px; margin-top:5px;"></p>
+      `;
+
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+
+      let ball = { x: 160, y: 260, r: 10 };
+      let platforms = [];
+      let score = 0;
+      let gameOver = false;
+
+      // Créer les carrés/plateformes du pont
+      for (let i = 0; i < 6; i++) {
+        platforms.push({
+          x: Math.random() * 200,
+          y: i * 45 + 20,
+          w: 70,
+          h: 20,
+          speed: (Math.random() > 0.5 ? 1 : -1) * (1.5 + Math.random())
+        });
+      }
+
+      window.moveBall = function(dir) {
+        if (!gameOver) {
+          ball.x += dir;
+          if (ball.x < ball.r) ball.x = ball.r;
+          if (ball.x > canvas.width - ball.r) ball.x = canvas.width - ball.r;
+        }
+      };
+
+      stopGame();
+
+      gameInterval = setInterval(() => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Dessiner et bouger le pont (carrés)
+        let onPlatform = false;
+
+        platforms.forEach(p => {
+          p.x += p.speed;
+          if (p.x <= 0 || p.x + p.w >= canvas.width) {
+            p.speed *= -1;
+          }
+
+          // Rendu des carrés
+          ctx.fillStyle = "#00ffcc";
+          ctx.fillRect(p.x, p.y, p.w, p.h);
+          ctx.strokeStyle = "#ffffff";
+          ctx.strokeRect(p.x, p.y, p.w, p.h);
+
+          // Vérification si la balle repose sur une plateforme
+          if (
+            ball.y + ball.r >= p.y &&
+            ball.y - ball.r <= p.y + p.h &&
+            ball.x >= p.x &&
+            ball.x <= p.x + p.w
+          ) {
+            onPlatform = true;
+            ball.x += p.speed; // La balle bouge avec la plateforme
+          }
+        });
+
+        // Dessiner la balle
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+        ctx.fillStyle = "#ff416c";
+        ctx.fill();
+        ctx.closePath();
+
+        // Faire avancer le pont (faire défiler les cases)
+        if (!gameOver) {
+          score++;
+          document.getElementById('game-score').innerText = "Score (Cases parcourues) : " + Math.floor(score / 10);
+
+          // Test de chute dans le vide
+          if (!onPlatform && ball.y < 280) {
+            ball.y += 4; // Tombe
+          }
+          if (ball.y >= 290 || ball.x <= 5 || ball.x >= canvas.width - 5) {
+            gameOver = true;
+            document.getElementById('game-score').innerHTML = `<span style="color:#ff6b6b">Perdu ! Tu es tombé dans le vide !<br>Score Final : ${Math.floor(score / 10)} cases</span>`;
+            clearInterval(gameInterval);
+          }
+        }
+      }, 1000 / 30);
+    }
+
+    // --- JEU 2 : DEVINETTE DE NOMBRE ---
+    let targetNumber = 0, attempts = 0;
+    function showGuessGame() {
+      stopGame();
+      targetNumber = Math.floor(Math.random() * 100) + 1;
+      attempts = 0;
+      document.getElementById('game-container').innerHTML = `
+        <h4>🎯 Devinette de Nombre</h4>
+        <p>Devine le nombre entre 1 et 100 !</p>
+        <input type="number" id="game-guess" placeholder="Entre ton nombre (1-100)" min="1" max="100">
+        <button class="btn btn-action" onclick="playGuessGame()">Deviner</button>
+        <p id="game-feedback" style="margin-top:10px; font-weight:bold;"></p>
+      `;
+    }
+
+    function playGuessGame() {
+      const input = document.getElementById('game-guess');
+      const val = parseInt(input.value);
+      const feedback = document.getElementById('game-feedback');
+
+      if (isNaN(val) || val < 1 || val > 100) {
+        feedback.innerText = "Entre un nombre valide entre 1 et 100 !";
+        feedback.style.color = "#ff9500";
+        return;
+      }
+
+      attempts++;
+      if (val === targetNumber) {
+        feedback.innerText = `Bravo ! Tu as trouvé ${targetNumber} en ${attempts} essai(s) ! 🎉`;
+        feedback.style.color = "#28a745";
+        playTingOuiSound();
+      } else if (val < targetNumber) {
+        feedback.innerText = "C'est PLUS GRAND ! ⬆️";
+        feedback.style.color = "#00ffcc";
+      } else {
+        feedback.innerText = "C'est PLUS PETIT ! ⬇️";
+        feedback.style.color = "#ff6b6b";
+      }
+      input.value = '';
+    }
+
+    // 5. CALCULATRICE
+    function showCalc() {
+      stopGame();
+      document.getElementById('content-area').innerHTML = `
+        <h3>Calculatrice</h3>
+        <div id="calc-display" class="calc-screen">0</div>
+        <div class="calc-grid">
+          <button class="calc-btn" onclick="calcClear()">C</button>
+          <button class="calc-btn" onclick="calcAppend('(')">(</button>
+          <button class="calc-btn" onclick="calcAppend(')')">)</button>
+          <button class="calc-btn op" onclick="calcAppend('/')">/</button>
+          
+          <button class="calc-btn" onclick="calcAppend('7')">7</button>
+          <button class="calc-btn" onclick="calcAppend('8')">8</button>
+          <button class="calc-btn" onclick="calcAppend('9')">9</button>
+          <button class="calc-btn op" onclick="calcAppend('*')">*</button>
+
+          <button class="calc-btn" onclick="calcAppend('4')">4</button>
+          <button class="calc-btn" onclick="calcAppend('5')">5</button>
+          <button class="calc-btn" onclick="calcAppend('6')">6</button>
+          <button class="calc-btn op" onclick="calcAppend('-')">-</button>
+
+          <button class="calc-btn" onclick="calcAppend('1')">1</button>
+          <button class="calc-btn" onclick="calcAppend('2')">2</button>
+          <button class="calc-btn" onclick="calcAppend('3')">3</button>
+          <button class="calc-btn op" onclick="calcAppend('+')">+</button>
+
+          <button class="calc-btn" onclick="calcAppend('0')">0</button>
+          <button class="calc-btn" onclick="calcAppend('.')">.</button>
+          <button class="calc-btn op" style="grid-column: span 2;" onclick="calcCompute()">=</button>
+        </div>
+      `;
+    }
+
+    let calcExpr = "";
+    function calcAppend(val) {
+      if (calcExpr === "0" && val !== ".") calcExpr = "";
+      calcExpr += val;
+      document.getElementById('calc-display').innerText = calcExpr;
+    }
+    function calcClear() {
+      calcExpr = "";
+      document.getElementById('calc-display').innerText = "0";
+    }
+    function calcCompute() {
+      try {
+        const res = Function('"use strict";return (' + calcExpr + ')')();
+        document.getElementById('calc-display').innerText = res;
+        calcExpr = res.toString();
+      } catch (e) {
+        document.getElementById('calc-display').innerText = "Erreur";
+        calcExpr = "";
+      }
+    }
+
+    // 6. STUDIO SON (5 sons)
+    function showSoundboard() {
+      stopGame();
+      document.getElementById('content-area').innerHTML = `
+        <h3>Studio Son 🔊</h3>
+        <div class="sound-grid">
+          <button class="btn btn-action" onclick="playAudioSound('fanfare')">🎺 Fanfare</button>
+          <button class="btn btn-action" onclick="playAudioSound('bell')">🔔 Cloche</button>
+          <button class="btn btn-action" onclick="playAudioSound('robot')">🤖 Robot</button>
+          <button class="btn btn-action" onclick="playAudioSound('laser')">💥 Laser</button>
+          <button class="btn btn-action" style="grid-colum
