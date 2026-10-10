@@ -23,8 +23,8 @@
 
     .container {
       width: 100%;
-      max-width: 420px;
-      background: rgba(30, 30, 30, 0.85);
+      max-width: 440px;
+      background: rgba(30, 30, 30, 0.9);
       backdrop-filter: blur(10px);
       padding: 30px 20px;
       border-radius: 20px;
@@ -165,6 +165,48 @@
       touch-action: none;
     }
   </style>
+</head>
+<body onclick="handleGlobalClick(event)">
+
+  <!-- ÉCRAN DE CONNEXION -->
+  <div class="container" id="login-screen">
+    <h1>ConnectJay</h1>
+    <p>Choisissez votre mode de connexion :</p>
+    
+    <button class="btn btn-classique" onclick="setMode('Classique')">Connexion Classique</button>
+    <button class="btn btn-vip" onclick="setMode('VIP')">Connexion VIP 👑</button>
+
+    <div id="form-section" class="hidden" style="margin-top: 15px;">
+      <h3 id="mode-title"></h3>
+      <input type="text" id="username" placeholder="Nom d'utilisateur">
+      <input type="password" id="pin" placeholder="Code PIN">
+      <button class="btn btn-action" onclick="login()">Se connecter</button>
+      <p id="error-msg" style="color: #ff6b6b; font-weight: bold;"></p>
+    </div>
+  </div>
+
+  <!-- ÉCRAN PRINCIPAL -->
+  <div class="container hidden" id="welcome-screen">
+    <h1 id="welcome-title">Bienvenue!</h1>
+
+    <div class="menu-grid" id="main-buttons">
+      <button class="btn btn-action" onclick="showRessources()">Ressources</button>
+      <button class="btn btn-action" onclick="showQuizMenu()">Quiz 🧠</button>
+      <button class="btn btn-action" onclick="showBientot()">Bientôt dispo</button>
+      <button class="btn btn-action" onclick="showMiniJeuxMenu()">Mini-jeux 🎮</button>
+      <button class="btn btn-action" onclick="showCalc()">Calculatrice</button>
+      <button class="btn btn-action" onclick="showSoundboard()">Studio Son 🔊</button>
+    </div>
+
+    <!-- Zone de contenu qui s'affiche en dessous -->
+    <div id="content-area" style="margin-top: 20px;"></div>
+
+    <hr style="border-color: rgba(255,255,255,0.1); margin-top: 25px;">
+    
+    <a href="mailto:jaycobservant20@outlook.com?subject=AIDE%20SITE%20CONNECTIONJAY&body=MON%20PROBL%C3%88ME" style="text-decoration: none;">
+      <button class="btn btn-help">Aide</button>
+    </a>
+  </div>
 
   <script>
     // Audio Context Global
@@ -568,49 +610,4 @@
 
       try {
         const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        const now = audioCtx.currentTime;
-
-        if (type === 'bell') {
-          osc.frequency.setValueAtTime(880, now);
-          gain.gain.setValueAtTime(0.8, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
-          osc.start(now);
-          osc.stop(now + 1.2);
-        } else if (type === 'laser') {
-          osc.frequency.setValueAtTime(900, now);
-          osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
-          gain.gain.setValueAtTime(0.8, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-          osc.start(now);
-          osc.stop(now + 0.3);
-        } else if (type === 'robot') {
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(300, now);
-          osc.frequency.setValueAtTime(500, now + 0.1);
-          osc.frequency.setValueAtTime(200, now + 0.2);
-          gain.gain.setValueAtTime(0.5, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-          osc.start(now);
-          osc.stop(now + 0.4);
-        } else if (type === 'fanfare') {
-          osc.frequency.setValueAtTime(523.25, now);
-          osc.frequency.setValueAtTime(659.25, now + 0.15);
-          osc.frequency.setValueAtTime(783.99, now + 0.3);
-          gain.gain.setValueAtTime(0.5, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
-          osc.start(now);
-          osc.stop(now + 0.6);
-        } else if (type === 'bip') {
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(440, now);
-          osc.frequency.setValueAtTime(880, now + 0.2);
-          gain.gain.setValueAtTime(0.4, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-          osc.start(now);
-          osc.stop(now + 0.4);
-        }
-      } 
+        const 
