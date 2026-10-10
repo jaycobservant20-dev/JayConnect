@@ -90,7 +90,7 @@
     }
 
     .hidden {
-      display: none;
+      display: none !important;
     }
 
     .menu-grid {
@@ -165,48 +165,6 @@
       touch-action: none;
     }
   </style>
-</head>
-<body onclick="handleGlobalClick(event)">
-
-  <!-- ÉCRAN DE CONNEXION -->
-  <div class="container" id="login-screen">
-    <h1>ConnectJay</h1>
-    <p>Choisissez votre mode de connexion :</p>
-    
-    <button class="btn btn-classique" onclick="setMode('Classique')">Connexion Classique</button>
-    <button class="btn btn-vip" onclick="setMode('VIP')">Connexion VIP 👑</button>
-
-    <div id="form-section" class="hidden" style="margin-top: 15px;">
-      <h3 id="mode-title"></h3>
-      <input type="text" id="username" placeholder="Nom d'utilisateur">
-      <input type="password" id="pin" placeholder="Code PIN">
-      <button class="btn btn-action" onclick="login()">Se connecter</button>
-      <p id="error-msg" style="color: #ff6b6b; font-weight: bold;"></p>
-    </div>
-  </div>
-
-  <!-- ÉCRAN PRINCIPAL -->
-  <div class="container hidden" id="welcome-screen">
-    <h1 id="welcome-title">Bienvenue!</h1>
-
-    <div class="menu-grid" id="main-buttons">
-      <button class="btn btn-action" onclick="showRessources()">Ressources</button>
-      <button class="btn btn-action" onclick="showQuizMenu()">Quiz 🧠</button>
-      <button class="btn btn-action" onclick="showBientot()">Bientôt dispo</button>
-      <button class="btn btn-action" onclick="showMiniJeuxMenu()">Mini-jeux 🎮</button>
-      <button class="btn btn-action" onclick="showCalc()">Calculatrice</button>
-      <button class="btn btn-action" onclick="showSoundboard()">Studio Son 🔊</button>
-    </div>
-
-    <!-- Zone de contenu -->
-    <div id="content-area" style="margin-top: 20px;"></div>
-
-    <hr style="border-color: rgba(255,255,255,0.1); margin-top: 25px;">
-    
-    <a href="mailto:jaycobservant20@outlook.com?subject=AIDE%20SITE%20CONNECTIONJAY&body=MON%20PROBL%C3%88ME" style="text-decoration: none;">
-      <button class="btn btn-help">Aide</button>
-    </a>
-  </div>
 
   <script>
     // Audio Context Global
@@ -231,48 +189,50 @@
     // Son de clic normal
     function playTingSound() {
       if (!audioCtx) return;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
 
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
 
-      const now = audioCtx.currentTime;
-      osc.frequency.setValueAtTime(1200, now);
-      gain.gain.setValueAtTime(0.2, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        const now = audioCtx.currentTime;
+        osc.frequency.setValueAtTime(1200, now);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
 
-      osc.start(now);
-      osc.stop(now + 0.15);
+        osc.start(now);
+        osc.stop(now + 0.15);
+      } catch (err) {}
     }
 
     // Son "Ting oui !" (victoire quiz)
     function playTingOuiSound() {
       initAudio();
       if (!audioCtx) return;
-      const now = audioCtx.currentTime;
+      try {
+        const now = audioCtx.currentTime;
 
-      // Premier Ting
-      const osc1 = audioCtx.createOscillator();
-      const gain1 = audioCtx.createGain();
-      osc1.connect(gain1);
-      gain1.connect(audioCtx.destination);
-      osc1.frequency.setValueAtTime(1000, now);
-      gain1.gain.setValueAtTime(0.3, now);
-      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-      osc1.start(now);
-      osc1.stop(now + 0.12);
+        const osc1 = audioCtx.createOscillator();
+        const gain1 = audioCtx.createGain();
+        osc1.connect(gain1);
+        gain1.connect(audioCtx.destination);
+        osc1.frequency.setValueAtTime(1000, now);
+        gain1.gain.setValueAtTime(0.3, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        osc1.start(now);
+        osc1.stop(now + 0.12);
 
-      // Deuxième Ting plus aigu ("Oui !")
-      const osc2 = audioCtx.createOscillator();
-      const gain2 = audioCtx.createGain();
-      osc2.connect(gain2);
-      gain2.connect(audioCtx.destination);
-      osc2.frequency.setValueAtTime(1500, now + 0.1);
-      gain2.gain.setValueAtTime(0.4, now + 0.1);
-      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-      osc2.start(now + 0.1);
-      osc2.stop(now + 0.3);
+        const osc2 = audioCtx.createOscillator();
+        const gain2 = audioCtx.createGain();
+        osc2.connect(gain2);
+        gain2.connect(audioCtx.destination);
+        osc2.frequency.setValueAtTime(1500, now + 0.1);
+        gain2.gain.setValueAtTime(0.4, now + 0.1);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc2.start(now + 0.1);
+        osc2.stop(now + 0.3);
+      } catch (err) {}
     }
 
     // Liste des utilisateurs
@@ -290,9 +250,12 @@
 
     function setMode(mode) {
       currentMode = mode;
-      document.getElementById('form-section').classList.remove('hidden');
-      document.getElementById('mode-title').innerText = "Connexion " + (mode === 'VIP' ? "VIP 👑" : "Classique");
-      document.getElementById('error-msg').innerText = "";
+      const formSection = document.getElementById('form-section');
+      if (formSection) {
+        formSection.classList.remove('hidden');
+        document.getElementById('mode-title').innerText = "Connexion " + (mode === 'VIP' ? "VIP 👑" : "Classique");
+        document.getElementById('error-msg').innerText = "";
+      }
     }
 
     function login() {
@@ -364,7 +327,7 @@
       
       if (isCorrect) {
         btn.classList.add('correct');
-        playTingOuiSound(); // Declenche le Ting oui !
+        playTingOuiSound();
         document.getElementById('quiz-msg').innerText = "Bravo ! Bonne réponse ! 🎉";
         document.getElementById('quiz-msg').style.color = "#28a745";
       } else {
@@ -380,7 +343,7 @@
       document.getElementById('content-area').innerHTML = "<h3 style='color:#aaa;'>BIENTÔT DISPONIBLE</h3>";
     }
 
-    // 4. MINI JEUX (Avec "Balle dans le vide")
+    // 4. MINI JEUX
     function showMiniJeuxMenu() {
       stopGame();
       document.getElementById('content-area').innerHTML = `
@@ -391,7 +354,7 @@
       `;
     }
 
-    // --- JEU 1 : BALLE DANS LE VIDE ---
+    // JEU : BALLE DANS LE VIDE
     let gameInterval = null;
     function stopGame() {
       if (gameInterval) clearInterval(gameInterval);
@@ -404,8 +367,8 @@
         <p style="font-size:12px;">Déplace la balle sur les carrés mobiles du pont !</p>
         <canvas id="gameCanvas" width="320" height="300"></canvas>
         <div style="margin-top: 8px;">
-          <button class="btn btn-action" style="width: 48%; inline-size: 48%;" onclick="moveBall(-15)">⬅️ Gauche</button>
-          <button class="btn btn-action" style="width: 48%; inline-size: 48%;" onclick="moveBall(15)">Droite ➡️</button>
+          <button class="btn btn-action" style="width: 48%; display: inline-block;" onclick="moveBall(-15)">⬅️ Gauche</button>
+          <button class="btn btn-action" style="width: 48%; display: inline-block;" onclick="moveBall(15)">Droite ➡️</button>
         </div>
         <button class="btn btn-vip" style="margin-top:5px;" onclick="startBallInVoidGame()">Recommencer</button>
         <p id="game-score" style="font-weight:bold; font-size:16px; margin-top:5px;"></p>
@@ -419,7 +382,6 @@
       let score = 0;
       let gameOver = false;
 
-      // Créer les carrés/plateformes du pont
       for (let i = 0; i < 6; i++) {
         platforms.push({
           x: Math.random() * 200,
@@ -443,7 +405,6 @@
       gameInterval = setInterval(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Dessiner et bouger le pont (carrés)
         let onPlatform = false;
 
         platforms.forEach(p => {
@@ -452,13 +413,11 @@
             p.speed *= -1;
           }
 
-          // Rendu des carrés
           ctx.fillStyle = "#00ffcc";
           ctx.fillRect(p.x, p.y, p.w, p.h);
           ctx.strokeStyle = "#ffffff";
           ctx.strokeRect(p.x, p.y, p.w, p.h);
 
-          // Vérification si la balle repose sur une plateforme
           if (
             ball.y + ball.r >= p.y &&
             ball.y - ball.r <= p.y + p.h &&
@@ -466,25 +425,22 @@
             ball.x <= p.x + p.w
           ) {
             onPlatform = true;
-            ball.x += p.speed; // La balle bouge avec la plateforme
+            ball.x += p.speed;
           }
         });
 
-        // Dessiner la balle
         ctx.beginPath();
         ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
         ctx.fillStyle = "#ff416c";
         ctx.fill();
         ctx.closePath();
 
-        // Faire avancer le pont (faire défiler les cases)
         if (!gameOver) {
           score++;
           document.getElementById('game-score').innerText = "Score (Cases parcourues) : " + Math.floor(score / 10);
 
-          // Test de chute dans le vide
           if (!onPlatform && ball.y < 280) {
-            ball.y += 4; // Tombe
+            ball.y += 4;
           }
           if (ball.y >= 290 || ball.x <= 5 || ball.x >= canvas.width - 5) {
             gameOver = true;
@@ -495,7 +451,7 @@
       }, 1000 / 30);
     }
 
-    // --- JEU 2 : DEVINETTE DE NOMBRE ---
+    // JEU : DEVINETTE DE NOMBRE
     let targetNumber = 0, attempts = 0;
     function showGuessGame() {
       stopGame();
@@ -591,7 +547,7 @@
       }
     }
 
-    // 6. STUDIO SON (5 sons)
+    // 6. STUDIO SON
     function showSoundboard() {
       stopGame();
       document.getElementById('content-area').innerHTML = `
@@ -601,4 +557,60 @@
           <button class="btn btn-action" onclick="playAudioSound('bell')">🔔 Cloche</button>
           <button class="btn btn-action" onclick="playAudioSound('robot')">🤖 Robot</button>
           <button class="btn btn-action" onclick="playAudioSound('laser')">💥 Laser</button>
-          <button class="btn btn-action" style="grid-colum
+          <button class="btn btn-action" style="grid-column: span 2;" onclick="playAudioSound('bip')">🎵 Bip Spécial</button>
+        </div>
+      `;
+    }
+
+    function playAudioSound(type) {
+      initAudio();
+      if (!audioCtx) return;
+
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'bell') {
+          osc.frequency.setValueAtTime(880, now);
+          gain.gain.setValueAtTime(0.8, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+          osc.start(now);
+          osc.stop(now + 1.2);
+        } else if (type === 'laser') {
+          osc.frequency.setValueAtTime(900, now);
+          osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+          gain.gain.setValueAtTime(0.8, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'robot') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(300, now);
+          osc.frequency.setValueAtTime(500, now + 0.1);
+          osc.frequency.setValueAtTime(200, now + 0.2);
+          gain.gain.setValueAtTime(0.5, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+          osc.start(now);
+          osc.stop(now + 0.4);
+        } else if (type === 'fanfare') {
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.setValueAtTime(659.25, now + 0.15);
+          osc.frequency.setValueAtTime(783.99, now + 0.3);
+          gain.gain.setValueAtTime(0.5, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+          osc.start(now);
+          osc.stop(now + 0.6);
+        } else if (type === 'bip') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.setValueAtTime(880, now + 0.2);
+          gain.gain.setValueAtTime(0.4, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+          osc.start(now);
+          osc.stop(now + 0.4);
+        }
+      } 
